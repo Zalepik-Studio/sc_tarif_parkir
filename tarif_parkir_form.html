@@ -1,293 +1,719 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tarif Parkir - IndexedDB</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tarif Parkir — IndexedDB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background-color: #111827;
-      color: #e5e7eb;
+      background: #0b1220;
+      color: #e6eef8;
     }
 
     .card {
-      background-color: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 1rem;
-      padding: 1.5rem;
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
     }
 
     .tab {
       cursor: pointer;
+      user-select: none;
+      padding-bottom: 8px;
     }
 
     .hidden {
       display: none;
     }
+
+    table th,
+    table td {
+      border: 1px solid rgba(100, 116, 139, 0.25);
+    }
+
+    .small {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
   </style>
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-6">
-  <div class="w-full max-w-6xl card shadow-xl">
-    <h1 class="text-2xl font-bold mb-4 text-amber-400">Manajemen Tarif Parkir</h1>
+  <div class="w-full max-w-6xl card shadow-lg">
+    <header class="mb-4 flex items-center justify-between">
+      <h1 class="text-2xl font-semibold text-amber-400">Manajemen Tarif Parkir</h1>
+      <div class="small">Local demo • IndexedDB</div>
+    </header>
 
-    <!-- Tab Navigation -->
-    <div class="flex gap-6 mb-6 border-b border-gray-700">
-      <div id="tab-tarif" class="tab text-amber-400 border-b-2 border-amber-400 pb-2">Kelola Tarif Parkir</div>
-      <div id="tab-simulasi" class="tab text-gray-400 hover:text-amber-400 pb-2">Simulasi Transaksi</div>
-      <div id="tab-data" class="tab text-gray-400 hover:text-amber-400 pb-2">Data Tersimpan</div>
-    </div>
+    <!-- Tabs -->
+    <nav class="flex gap-6 border-b border-slate-700 mb-6">
+      <div id="tab-tarif" class="tab text-amber-400 border-b-2 border-amber-400">Kelola Tarif Parkir</div>
+      <div id="tab-simulasi" class="tab text-slate-300">Simulasi Transaksi</div>
+      <div id="tab-data" class="tab text-slate-300">Data Tersimpan</div>
+    </nav>
 
-    <!-- TAB 1: Kelola Tarif Parkir -->
-    <div id="tabContent-tarif">
-      <form id="tarifForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block mb-1 text-sm">Jenis Kendaraan</label>
-          <input type="text" name="jenis_kendaraan" placeholder="Contoh: Mobil"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block mb-1 text-sm">Jenis Tarif</label>
-          <select name="jenis_tarif"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500">
-            <option value="reguler">Reguler</option>
-            <option value="flat">Flat</option>
-            <option value="event">Event</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block mb-1 text-sm">Waktu Berlaku</label>
-          <input type="text" name="waktu_berlaku" placeholder="00:00 - 23:59"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block mb-1 text-sm">Grace Period (menit)</label>
-          <input type="number" name="grace_period" value="15"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100" />
-        </div>
-
-        <div>
-          <label class="block mb-1 text-sm">Tarif Grace (Rp)</label>
-          <input type="number" name="tarif_grace" value="0"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block mb-1 text-sm">Rotasi 1 (jam ke-)</label>
-            <input type="number" name="rotasi1" value="1"
-              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+    <!-- TAB: Kelola Tarif Parkir -->
+    <section id="content-tarif">
+      <form id="tarifForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Left column -->
+        <div class="space-y-3">
+          <div>
+            <label class="block small mb-1">Jenis Kendaraan</label>
+            <select name="Jenis Kendaraan" id="field-jenis"
+              class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100">
+              <option value="Mobil">Mobil</option>
+              <option value="Motor">Motor</option>
+              <option value="Bus">Bus</option>
+              <option value="Truk">Truk</option>
+            </select>
           </div>
-          <div><label class="block mb-1 text-sm">Tarif 1 (Rp)</label>
-            <input type="number" name="tarif1" value="5000"
-              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
-          </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="block mb-1 text-sm">Rotasi 2 (jam ke-)</label>
-            <input type="number" name="rotasi2" value="2"
-              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+          <div>
+            <label class="block small mb-1">Jenis Tarif</label>
+            <select name="Jenis Tarif" id="field-jenis-tarif"
+              class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100">
+              <option value="reguler">reguler</option>
+              <option value="flat">flat</option>
+              <option value="event">event</option>
+              <option value="promo">promo</option>
+            </select>
           </div>
-          <div><label class="block mb-1 text-sm">Tarif 2 (Rp)</label>
-            <input type="number" name="tarif2" value="10000"
-              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+
+          <div>
+            <label class="block small mb-1">Waktu Berlaku</label>
+            <input id="field-waktu" name="Waktu Berlaku" class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100"
+              placeholder="00:00 - 23:59" value="00:00 - 23:59" />
+            <div class="small mt-1">Format: HH:MM - HH:MM (opsional jika flat)</div>
+          </div>
+
+          <div>
+            <label class="block small mb-1">Grace Period (menit)</label>
+            <input id="field-grace" name="Grace Period (menit)" type="number" min="0" value="15"
+              class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+          </div>
+
+          <div>
+            <label class="block small mb-1">Tarif Grace (Rp)</label>
+            <input id="field-tarif-grace" name="Tarif Grace (Rp)" type="number" min="0" value="0"
+              class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
           </div>
         </div>
 
-        <div>
-          <label class="block mb-1 text-sm">Tarif Maksimum per Hari (Rp)</label>
-          <input type="number" name="tarif_maksimum" value="50000"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+        <!-- Right column -->
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block small mb-1">Rotasi 1 (jam ke-)</label>
+              <input id="field-rotasi1" name="Rotasi 1 (jam ke-)" type="number" min="0" value="1"
+                class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+            </div>
+            <div>
+              <label class="block small mb-1">Tarif 1 (Rp)</label>
+              <input id="field-tarif1" name="Tarif 1 (Rp)" type="number" min="0" value="5000"
+                class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block small mb-1">Rotasi 2 (jam ke-)</label>
+              <input id="field-rotasi2" name="Rotasi 2 (jam ke-)" type="number" min="0" value="2"
+                class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+            </div>
+            <div>
+              <label class="block small mb-1">Tarif 2 (Rp)</label>
+              <input id="field-tarif2" name="Tarif 2 (Rp)" type="number" min="0" value="10000"
+                class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block small mb-1">Rotasi 3 (jam ke-)</label>
+              <input id="field-rotasi3" name="Rotasi 3 (jam ke-)" type="number" min="0" value="3"
+                class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+            </div>
+            <div>
+              <label class="block small mb-1">Tarif 3 (Rp)</label>
+              <input id="field-tarif3" name="Tarif 3 (Rp)" type="number" min="0" value="15000"
+                class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block small mb-1">Tarif Per Jam Lanjutan (Rp)</label>
+            <input id="field-tarif-lanjutan" name="Tarif Per Jam Lanjutan (Rp)" type="number" min="0" value="5000"
+              class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+          </div>
+
+          <div>
+            <label class="block small mb-1">Tarif Maksimum per Hari (Rp)</label>
+            <input id="field-tarif-maks" name="Tarif Maksimum per Hari (Rp)" type="number" min="0" value="50000"
+              class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
+          </div>
         </div>
 
+        <!-- actions -->
         <div class="md:col-span-2 flex justify-end gap-3 mt-2">
-          <button type="reset"
-            class="px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200">Reset</button>
-          <button type="submit" class="px-4 py-2 bg-amber-500 text-gray-900 font-semibold rounded-md">Simpan</button>
+          <button id="btn-reset" type="reset" class="px-4 py-2 rounded bg-slate-700">Reset</button>
+          <button id="btn-save" type="submit"
+            class="px-4 py-2 rounded bg-amber-500 text-slate-900 font-semibold">Simpan</button>
         </div>
       </form>
 
-      <div id="tarifList" class="mt-6 text-sm text-gray-300"></div>
-    </div>
+      <div id="tarifList" class="mt-6"></div>
+    </section>
 
-    <!-- TAB 2: Simulasi Transaksi -->
-    <div id="tabContent-simulasi" class="hidden">
+    <!-- TAB: Simulasi -->
+    <section id="content-simulasi" class="hidden">
       <div class="grid md:grid-cols-3 gap-4">
         <div>
-          <label class="block mb-1 text-sm">Jenis Kendaraan</label>
-          <select id="simJenisKendaraan"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100"></select>
+          <label class="block small mb-1">Jenis Kendaraan</label>
+          <select id="sim-jenis" class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100"></select>
         </div>
         <div>
-          <label class="block mb-1 text-sm">Jam Masuk</label>
-          <input type="time" id="simMasuk"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+          <label class="block small mb-1">Waktu Masuk</label>
+          <input id="sim-masuk" type="datetime-local" class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
         </div>
         <div>
-          <label class="block mb-1 text-sm">Jam Keluar</label>
-          <input type="time" id="simKeluar"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+          <label class="block small mb-1">Waktu Keluar</label>
+          <input id="sim-keluar" type="datetime-local" class="w-full bg-slate-800 px-3 py-2 rounded text-slate-100" />
         </div>
       </div>
 
-      <button id="btnSimulasi" class="mt-4 px-4 py-2 bg-amber-500 text-gray-900 rounded-md font-semibold">Hitung
-        Biaya</button>
+      <div class="mt-4 flex gap-3">
+        <button id="btn-hitung" class="px-4 py-2 rounded bg-emerald-500 text-slate-900 font-semibold">Hitung
+          Biaya</button>
+        <button id="btn-reset-sim" class="px-4 py-2 rounded bg-slate-700">Reset</button>
+      </div>
 
-      <div id="hasilSimulasi" class="mt-4 text-lg text-amber-400 font-bold"></div>
-    </div>
+      <div id="result" class="mt-6 text-lg font-semibold text-amber-300"></div>
+      <div id="breakdown" class="mt-3 small text-slate-300"></div>
+    </section>
 
-    <!-- TAB 3: Data Tersimpan -->
-    <div id="tabContent-data" class="hidden">
-      <h2 class="text-xl font-semibold mb-3 text-amber-400">Data Tarif Parkir di Database</h2>
-      <table class="w-full text-sm border border-gray-700 rounded-md overflow-hidden">
-        <thead class="bg-gray-800 text-gray-300">
-          <tr>
-            <th class="p-2 border border-gray-700">ID</th>
-            <th class="p-2 border border-gray-700">Kendaraan</th>
-            <th class="p-2 border border-gray-700">Jenis Tarif</th>
-            <th class="p-2 border border-gray-700">Waktu Berlaku</th>
-            <th class="p-2 border border-gray-700">Tarif 1</th>
-            <th class="p-2 border border-gray-700">Tarif 2</th>
-            <th class="p-2 border border-gray-700">Maks / Hari</th>
-          </tr>
-        </thead>
-        <tbody id="tableData" class="bg-gray-900 text-gray-200"></tbody>
-      </table>
-    </div>
+    <!-- TAB: Data Tersimpan -->
+    <section id="content-data" class="hidden">
+      <h2 class="text-lg font-medium text-amber-400 mb-3">Data Tarif Parkir (IndexedDB)</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-800 text-slate-300">
+            <tr>
+              <th class="p-2">ID</th>
+              <th class="p-2">Jenis Kendaraan</th>
+              <th class="p-2">Jenis Tarif</th>
+              <th class="p-2">Waktu Berlaku</th>
+              <th class="p-2">Grace (menit)</th>
+              <th class="p-2">Tarif Grace</th>
+              <th class="p-2">Tarif 1</th>
+              <th class="p-2">Tarif 2</th>
+              <th class="p-2">Tarif 3</th>
+              <th class="p-2">Tarif/jam lanj.</th>
+              <th class="p-2">Maks/Hari</th>
+              <th class="p-2">Keterangan</th>
+              <th class="p-2">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="bg-slate-900 text-slate-200"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="mt-6 small text-slate-400">Tampilan data sesuai file Excel yang diberikan</footer>
   </div>
 
   <script>
-    // IndexedDB
-    let db;
-    const request = indexedDB.open("DBParkir", 1);
-    request.onupgradeneeded = (e) => {
-      db = e.target.result;
-      if (!db.objectStoreNames.contains("tarif")) {
-        db.createObjectStore("tarif", { keyPath: "id", autoIncrement: true });
+    /*
+      Keys used (match Excel columns):
+      - Jenis Kendaraan
+      - Jenis Tarif
+      - Waktu Berlaku
+      - Grace Period (menit)
+      - Tarif Grace (Rp)
+      - Rotasi 1 (jam ke-)
+      - Tarif 1 (Rp)
+      - Rotasi 2 (jam ke-)
+      - Tarif 2 (Rp)
+      - Rotasi 3 (jam ke-)
+      - Tarif 3 (Rp)
+      - Tarif Per Jam Lanjutan (Rp)
+      - Tarif Maksimum per Hari (Rp)
+      - Keterangan
+    */
+
+    const DB_NAME = 'DBParkir';
+    const STORE_NAME = 'tarif';
+    let db = null;
+
+    // open indexedDB
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (ev) => {
+          db = ev.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+          }
+        };
+        req.onsuccess = (ev) => { db = ev.target.result; resolve(db); };
+        req.onerror = (ev) => reject(ev.target.error);
+      });
+    }
+
+    // helper to run transaction
+    function storeTransaction(mode = 'readonly') {
+      const tx = db.transaction(STORE_NAME, mode);
+      return tx.objectStore(STORE_NAME);
+    }
+
+    // default data (based on your Excel)
+    const DEFAULTS = [
+      {
+        "Jenis Kendaraan": "Mobil",
+        "Jenis Tarif": "reguler",
+        "Waktu Berlaku": "00:00 - 23:59",
+        "Grace Period (menit)": 15,
+        "Tarif Grace (Rp)": 0,
+        "Rotasi 1 (jam ke-)": 1,
+        "Tarif 1 (Rp)": 5000,
+        "Rotasi 2 (jam ke-)": 2,
+        "Tarif 2 (Rp)": 10000,
+        "Rotasi 3 (jam ke-)": 3,
+        "Tarif 3 (Rp)": 15000,
+        "Tarif Per Jam Lanjutan (Rp)": 5000,
+        "Tarif Maksimum per Hari (Rp)": 50000,
+        "Keterangan": "Semua hari aktif"
+      },
+      {
+        "Jenis Kendaraan": "Motor",
+        "Jenis Tarif": "reguler",
+        "Waktu Berlaku": "00:00 - 23:59",
+        "Grace Period (menit)": 15,
+        "Tarif Grace (Rp)": 0,
+        "Rotasi 1 (jam ke-)": 1,
+        "Tarif 1 (Rp)": 2000,
+        "Rotasi 2 (jam ke-)": 2,
+        "Tarif 2 (Rp)": 4000,
+        "Rotasi 3 (jam ke-)": 3,
+        "Tarif 3 (Rp)": 6000,
+        "Tarif Per Jam Lanjutan (Rp)": 2000,
+        "Tarif Maksimum per Hari (Rp)": 20000,
+        "Keterangan": "Semua hari aktif"
+      },
+      {
+        "Jenis Kendaraan": "Bus",
+        "Jenis Tarif": "reguler",
+        "Waktu Berlaku": "00:00 - 23:59",
+        "Grace Period (menit)": 15,
+        "Tarif Grace (Rp)": 0,
+        "Rotasi 1 (jam ke-)": 1,
+        "Tarif 1 (Rp)": 10000,
+        "Rotasi 2 (jam ke-)": 2,
+        "Tarif 2 (Rp)": 20000,
+        "Rotasi 3 (jam ke-)": 3,
+        "Tarif 3 (Rp)": 30000,
+        "Tarif Per Jam Lanjutan (Rp)": 10000,
+        "Tarif Maksimum per Hari (Rp)": 100000,
+        "Keterangan": "Semua hari aktif"
+      },
+      {
+        "Jenis Kendaraan": "Truk",
+        "Jenis Tarif": "reguler",
+        "Waktu Berlaku": "00:00 - 23:59",
+        "Grace Period (menit)": 15,
+        "Tarif Grace (Rp)": 0,
+        "Rotasi 1 (jam ke-)": 1,
+        "Tarif 1 (Rp)": 10000,
+        "Rotasi 2 (jam ke-)": 2,
+        "Tarif 2 (Rp)": 20000,
+        "Rotasi 3 (jam ke-)": 3,
+        "Tarif 3 (Rp)": 30000,
+        "Tarif Per Jam Lanjutan (Rp)": 10000,
+        "Tarif Maksimum per Hari (Rp)": 100000,
+        "Keterangan": "Semua hari aktif"
       }
-    };
-    request.onsuccess = (e) => {
-      db = e.target.result;
-      loadTarifList();
-      loadTableData();
-    };
+    ];
 
-    // Simpan Tarif
-    document.getElementById("tarifForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const data = Object.fromEntries(new FormData(form).entries());
-      const tx = db.transaction("tarif", "readwrite");
-      tx.objectStore("tarif").add(data);
-      tx.oncomplete = () => {
-        form.reset();
-        loadTarifList();
-        loadTableData();
-      };
-    });
+    // INITIALIZE: open DB -> ensure defaults -> load UI
+    openDB().then(async () => {
+      await ensureDefaults();
+      renderAll();
+    }).catch(err => console.error('DB error', err));
 
-    // Daftar Tarif
-    function loadTarifList() {
-      const listDiv = document.getElementById("tarifList");
-      const selectSim = document.getElementById("simJenisKendaraan");
-      listDiv.innerHTML = "";
-      selectSim.innerHTML = "";
-
-      const tx = db.transaction("tarif", "readonly");
-      const store = tx.objectStore("tarif");
-      store.openCursor().onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          const t = cursor.value;
-          listDiv.innerHTML += `<div class="p-3 mb-2 bg-gray-800 rounded-md border border-gray-700">
-              <div class="font-semibold">${t.jenis_kendaraan}</div>
-              <div class="text-xs text-gray-400">${t.jenis_tarif} | ${t.waktu_berlaku}</div></div>`;
-          selectSim.innerHTML += `<option value="${t.jenis_kendaraan}">${t.jenis_kendaraan}</option>`;
-          cursor.continue();
-        }
-      };
+    // Ensure default entries exist for the 4 vehicle types
+    function ensureDefaults() {
+      return new Promise((resolve) => {
+        const store = storeTransaction('readonly');
+        const present = new Set();
+        store.openCursor().onsuccess = (e) => {
+          const c = e.target.result;
+          if (c) {
+            const j = c.value["Jenis Kendaraan"];
+            if (j) present.add(j);
+            c.continue();
+          } else {
+            // after cursor finished, add missing defaults
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const s2 = tx.objectStore(STORE_NAME);
+            DEFAULTS.forEach(def => {
+              if (!present.has(def["Jenis Kendaraan"])) {
+                s2.add(def);
+              }
+            });
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => resolve();
+          }
+        };
+        // handle empty store quickly: if no data, cursor onsuccess will still fire with null and then we add defaults
+      });
     }
 
-    // Tabel Data dari DB
-    function loadTableData() {
-      const tbody = document.getElementById("tableData");
-      tbody.innerHTML = "";
-      const tx = db.transaction("tarif", "readonly");
-      const store = tx.objectStore("tarif");
-      store.openCursor().onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          const t = cursor.value;
-          tbody.innerHTML += `
-            <tr class="border-b border-gray-800 hover:bg-gray-800">
-              <td class="p-2 border border-gray-700">${t.id}</td>
-              <td class="p-2 border border-gray-700">${t.jenis_kendaraan}</td>
-              <td class="p-2 border border-gray-700">${t.jenis_tarif}</td>
-              <td class="p-2 border border-gray-700">${t.waktu_berlaku}</td>
-              <td class="p-2 border border-gray-700">${t.tarif1}</td>
-              <td class="p-2 border border-gray-700">${t.tarif2}</td>
-              <td class="p-2 border border-gray-700">${t.tarif_maksimum}</td>
-            </tr>`;
-          cursor.continue();
-        }
+    // Convert form to object with numeric conversion
+    function readForm() {
+      const mapField = (id) => document.getElementById(id)?.value ?? '';
+      // some inputs are selected by name; fallback to ids
+      const data = {
+        "Jenis Kendaraan": document.getElementById('field-jenis').value.trim(),
+        "Jenis Tarif": document.getElementById('field-jenis-tarif').value,
+        "Waktu Berlaku": document.getElementById('field-waktu').value.trim() || '00:00 - 23:59',
+        "Grace Period (menit)": Number(document.getElementById('field-grace').value || 0),
+        "Tarif Grace (Rp)": Number(document.getElementById('field-tarif-grace').value || 0),
+        "Rotasi 1 (jam ke-)": Number(document.getElementById('field-rotasi1').value || 0),
+        "Tarif 1 (Rp)": Number(document.getElementById('field-tarif1').value || 0),
+        "Rotasi 2 (jam ke-)": Number(document.getElementById('field-rotasi2').value || 0),
+        "Tarif 2 (Rp)": Number(document.getElementById('field-tarif2').value || 0),
+        "Rotasi 3 (jam ke-)": Number(document.getElementById('field-rotasi3').value || 0),
+        "Tarif 3 (Rp)": Number(document.getElementById('field-tarif3').value || 0),
+        "Tarif Per Jam Lanjutan (Rp)": Number(document.getElementById('field-tarif-lanjutan').value || 0),
+        "Tarif Maksimum per Hari (Rp)": Number(document.getElementById('field-tarif-maks').value || 0),
+        "Keterangan": ""
       };
+      return data;
     }
 
-    // Tabs
-    const tabTarif = document.getElementById("tab-tarif");
-    const tabSim = document.getElementById("tab-simulasi");
-    const tabData = document.getElementById("tab-data");
-    const contentTarif = document.getElementById("tabContent-tarif");
-    const contentSim = document.getElementById("tabContent-simulasi");
-    const contentData = document.getElementById("tabContent-data");
+    // Render list (compact) and simulate select options
+    function renderList() {
+      const container = document.getElementById('tarifList');
+      const sel = document.getElementById('sim-jenis');
+      container.innerHTML = '';
+      sel.innerHTML = '<option value="">-- pilih jenis --</option>';
 
-    function showTab(selected, others, contentShow, contentsHide) {
-      selected.classList.add("text-amber-400", "border-b-2", "border-amber-400");
-      others.forEach(o => o.classList.remove("text-amber-400", "border-b-2", "border-amber-400"));
-      contentShow.classList.remove("hidden");
-      contentsHide.forEach(c => c.classList.add("hidden"));
-    }
-
-    tabTarif.onclick = () => showTab(tabTarif, [tabSim, tabData], contentTarif, [contentSim, contentData]);
-    tabSim.onclick = () => showTab(tabSim, [tabTarif, tabData], contentSim, [contentTarif, contentData]);
-    tabData.onclick = () => { showTab(tabData, [tabTarif, tabSim], contentData, [contentTarif, contentSim]); loadTableData(); };
-
-    // Simulasi
-    document.getElementById("btnSimulasi").addEventListener("click", () => {
-      const jenis = document.getElementById("simJenisKendaraan").value;
-      const masuk = document.getElementById("simMasuk").value;
-      const keluar = document.getElementById("simKeluar").value;
-      if (!jenis || !masuk || !keluar) return alert("Lengkapi data simulasi terlebih dahulu");
-
-      const jamMasuk = parseInt(masuk.split(":")[0]);
-      const jamKeluar = parseInt(keluar.split(":")[0]);
-      const durasi = jamKeluar - jamMasuk;
-      if (durasi <= 0) return alert("Jam keluar harus lebih besar dari jam masuk");
-
-      const tx = db.transaction("tarif", "readonly");
-      const store = tx.objectStore("tarif");
-      let tarifDipakai;
+      const store = storeTransaction('readonly');
       store.openCursor().onsuccess = (e) => {
         const c = e.target.result;
         if (c) {
-          if (c.value.jenis_kendaraan === jenis) tarifDipakai = c.value;
+          const r = c.value;
+          const card = document.createElement('div');
+          card.className = 'p-3 mb-3 bg-slate-900 rounded';
+          card.innerHTML = `<div class="font-semibold">${escapeHtml(r["Jenis Kendaraan"])}</div>
+        <div class="small text-slate-400">${escapeHtml(r["Jenis Tarif"])} • ${escapeHtml(r["Waktu Berlaku"])}</div>
+        <div class="small text-slate-400 mt-2">Tarif1: ${formatRp(r["Tarif 1 (Rp)"])} — Tarif2: ${formatRp(r["Tarif 2 (Rp)"])}</div>`;
+          container.appendChild(card);
+          sel.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(r["Jenis Kendaraan"])}">${escapeHtml(r["Jenis Kendaraan"])}</option>`);
           c.continue();
-        } else if (tarifDipakai) {
-          let total = 0;
-          if (durasi <= tarifDipakai.rotasi1) total = parseInt(tarifDipakai.tarif1);
-          else if (durasi <= tarifDipakai.rotasi2) total = parseInt(tarifDipakai.tarif2);
-          else total = parseInt(tarifDipakai.tarif_maksimum);
-          document.getElementById("hasilSimulasi").innerText = `Total Bayar: Rp ${total.toLocaleString()}`;
+        }
+      };
+    }
+
+    // render entire table
+    function renderTable() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      const store = storeTransaction('readonly');
+      store.openCursor().onsuccess = (e) => {
+        const c = e.target.result;
+        if (c) {
+          const r = c.value;
+          tbody.insertAdjacentHTML('beforeend', `
+        <tr class="hover:bg-slate-800">
+          <td class="p-2">${r.id}</td>
+          <td class="p-2">${escapeHtml(r["Jenis Kendaraan"])}</td>
+          <td class="p-2">${escapeHtml(r["Jenis Tarif"])}</td>
+          <td class="p-2">${escapeHtml(r["Waktu Berlaku"])}</td>
+          <td class="p-2">${r["Grace Period (menit)"]}</td>
+          <td class="p-2">${formatRp(r["Tarif Grace (Rp)"])}</td>
+          <td class="p-2">${formatRp(r["Tarif 1 (Rp)"])}</td>
+          <td class="p-2">${formatRp(r["Tarif 2 (Rp)"])}</td>
+          <td class="p-2">${formatRp(r["Tarif 3 (Rp)"])}</td>
+          <td class="p-2">${formatRp(r["Tarif Per Jam Lanjutan (Rp)"])}</td>
+          <td class="p-2">${formatRp(r["Tarif Maksimum per Hari (Rp)"])}</td>
+          <td class="p-2">${escapeHtml(r["Keterangan"] || '')}</td>
+          <td class="p-2">
+            <button data-id="${r.id}" class="btn-edit px-2 py-1 mr-2 bg-slate-700 rounded small">Edit</button>
+            <button data-id="${r.id}" class="btn-del px-2 py-1 bg-red-600 rounded small">Hapus</button>
+          </td>
+        </tr>
+      `);
+          c.continue();
         } else {
-          alert("Tarif tidak ditemukan");
+          // attach events
+          document.querySelectorAll('.btn-del').forEach(b => b.addEventListener('click', (ev) => {
+            const id = Number(ev.currentTarget.getAttribute('data-id'));
+            deleteById(id);
+          }));
+          document.querySelectorAll('.btn-edit').forEach(b => b.addEventListener('click', (ev) => {
+            const id = Number(ev.currentTarget.getAttribute('data-id'));
+            loadForEdit(id);
+          }));
+        }
+      };
+    }
+
+    // add record
+    function addRecord(obj) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const s = tx.objectStore(STORE_NAME);
+        const req = s.add(obj);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // update record
+    function putRecord(obj) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const s = tx.objectStore(STORE_NAME);
+        const req = s.put(obj);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // delete
+    function deleteById(id) {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const s = tx.objectStore(STORE_NAME);
+      s.delete(id).onsuccess = () => { renderAll(); };
+    }
+
+    // load item into form for editing
+    function loadForEdit(id) {
+      const store = storeTransaction('readonly');
+      const req = store.get(id);
+      req.onsuccess = () => {
+        const r = req.result;
+        if (!r) return;
+        // populate fields
+        document.getElementById('field-jenis').value = r["Jenis Kendaraan"] || '';
+        document.getElementById('field-jenis-tarif').value = r["Jenis Tarif"] || 'reguler';
+        document.getElementById('field-waktu').value = r["Waktu Berlaku"] || '00:00 - 23:59';
+        document.getElementById('field-grace').value = r["Grace Period (menit)"] || 0;
+        document.getElementById('field-tarif-grace').value = r["Tarif Grace (Rp)"] || 0;
+        document.getElementById('field-rotasi1').value = r["Rotasi 1 (jam ke-)"] || 0;
+        document.getElementById('field-tarif1').value = r["Tarif 1 (Rp)"] || 0;
+        document.getElementById('field-rotasi2').value = r["Rotasi 2 (jam ke-)"] || 0;
+        document.getElementById('field-tarif2').value = r["Tarif 2 (Rp)"] || 0;
+        document.getElementById('field-rotasi3').value = r["Rotasi 3 (jam ke-)"] || 0;
+        document.getElementById('field-tarif3').value = r["Tarif 3 (Rp)"] || 0;
+        document.getElementById('field-tarif-lanjutan').value = r["Tarif Per Jam Lanjutan (Rp)"] || 0;
+        document.getElementById('field-tarif-maks').value = r["Tarif Maksimum per Hari (Rp)"] || 0;
+        // set a hidden editing id
+        document.getElementById('tarifForm').dataset.editing = r.id;
+        // switch to tariff tab if not visible
+        showTab('tarif');
+      };
+    }
+
+    // save handler (create or update)
+    document.getElementById('tarifForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const editingId = document.getElementById('tarifForm').dataset.editing;
+      const formObj = readForm();
+      // add Keterangan empty
+      formObj["Keterangan"] = formObj["Keterangan"] || '';
+      if (editingId) {
+        formObj.id = Number(editingId);
+        await putRecord(formObj);
+        delete document.getElementById('tarifForm').dataset.editing;
+      } else {
+        await addRecord(formObj);
+      }
+      document.getElementById('tarifForm').reset();
+      renderAll();
+    });
+
+    // when jenis_tarif === flat => lock waktu field
+    document.getElementById('field-jenis-tarif').addEventListener('change', (e) => {
+      const waktu = document.getElementById('field-waktu');
+      if (e.target.value === 'flat') {
+        waktu.value = '00:00 - 23:59';
+        waktu.readOnly = true;
+      } else {
+        waktu.readOnly = false;
+      }
+    });
+
+    // simulation calculation
+    document.getElementById('btn-hitung').addEventListener('click', () => {
+      const jenis = document.getElementById('sim-jenis').value;
+      const masukStr = document.getElementById('sim-masuk').value;
+      const keluarStr = document.getElementById('sim-keluar').value;
+      if (!jenis || !masukStr || !keluarStr) { alert('Lengkapi data simulasi'); return; }
+
+      const masuk = new Date(masukStr);
+      const keluar = new Date(keluarStr);
+      if (isNaN(masuk) || isNaN(keluar)) { alert('Format waktu tidak valid'); return; }
+
+      // handle crossing midnight allow negative -> add 24h
+      let diffMs = keluar - masuk;
+      if (diffMs < 0) diffMs += 24 * 3600 * 1000;
+      const diffMin = Math.ceil(diffMs / 60000);
+
+      // find tarif by jenis (first match)
+      const store = storeTransaction('readonly');
+      let found = null;
+      store.openCursor().onsuccess = (e) => {
+        const c = e.target.result;
+        if (c) {
+          if (c.value["Jenis Kendaraan"] === jenis) {
+            found = c.value;
+            // we still continue to get last? we can stop by not continuing
+          }
+          c.continue();
+        } else {
+          if (!found) { alert('Tarif untuk jenis kendaraan tidak ditemukan'); return; }
+          const breakdown = computeFee(found, diffMin);
+          document.getElementById('result').innerText = `Total Bayar: Rp ${formatRp(breakdown.total)}`;
+          document.getElementById('breakdown').innerHTML = breakdown.lines.map(l => `<div>${escapeHtml(l)}</div>`).join('');
         }
       };
     });
+
+    // compute fee algorithm:
+    // - if duration <= grace -> tarif_grace
+    // - else remaining minutes -> hours = ceil(remaining/60)
+    // - if hours <= rotasi1 -> tarif1
+    // - else if hours <= rotasi2 -> tarif2
+    // - else if hours <= rotasi3 -> tarif3
+    // - else total = tarif3 + (hours - rotasi3) * tarifPerJam
+    // - finally cap at tarif_maksimum
+    function computeFee(tarifObj, durationMinutes) {
+      const gp = Number(tarifObj["Grace Period (menit)"] || 0);
+      const tarifGrace = Number(tarifObj["Tarif Grace (Rp)"] || 0);
+      const r1 = Number(tarifObj["Rotasi 1 (jam ke-)"] || 0);
+      const t1 = Number(tarifObj["Tarif 1 (Rp)"] || 0);
+      const r2 = Number(tarifObj["Rotasi 2 (jam ke-)"] || 0);
+      const t2 = Number(tarifObj["Tarif 2 (Rp)"] || 0);
+      const r3 = Number(tarifObj["Rotasi 3 (jam ke-)"] || 0);
+      const t3 = Number(tarifObj["Tarif 3 (Rp)"] || 0);
+      const tarifPerJam = Number(tarifObj["Tarif Per Jam Lanjutan (Rp)"] || 0);
+      const tarifMaks = Number(tarifObj["Tarif Maksimum per Hari (Rp)"] || 0);
+
+      const lines = [];
+      if (durationMinutes <= gp) {
+        lines.push(`Durasi ${durationMinutes} menit <= grace period (${gp} menit).`);
+        lines.push(`Biaya: Tarif grace = Rp ${formatRp(tarifGrace)}`);
+        return { total: Math.min(tarifGrace, tarifMaks || Infinity), lines };
+      }
+
+      const remaining = durationMinutes - gp;
+      const hours = Math.ceil(remaining / 60);
+      lines.push(`Durasi total: ${durationMinutes} menit (setelah grace: ${remaining} menit → ${hours} jam dibulatkan).`);
+
+      let total = 0;
+      if (r1 && hours <= r1) {
+        total = t1;
+        lines.push(`Menggunakan rotasi 1 (<= ${r1} jam): Tarif = Rp ${formatRp(t1)}`);
+      } else if (r2 && hours <= r2) {
+        total = t2;
+        lines.push(`Menggunakan rotasi 2 (<= ${r2} jam): Tarif = Rp ${formatRp(t2)}`);
+      } else if (r3 && hours <= r3) {
+        total = t3;
+        lines.push(`Menggunakan rotasi 3 (<= ${r3} jam): Tarif = Rp ${formatRp(t3)}`);
+      } else {
+        // beyond rotasi3
+        const beyond = Math.max(0, hours - (r3 || 0));
+        total = (t3 || 0) + beyond * tarifPerJam;
+        lines.push(`Di atas rotasi ${r3}: tarif dasar ${formatRp(t3)} + ${beyond} * ${formatRp(tarifPerJam)} (per jam lanjutan)`);
+      }
+
+      if (tarifMaks) {
+        lines.push(`Tarif sebelum cap: Rp ${formatRp(total)}. Maks/hari: Rp ${formatRp(tarifMaks)}`);
+        total = Math.min(total, tarifMaks);
+        lines.push(`Total setelah cap: Rp ${formatRp(total)}`);
+      } else {
+        lines.push(`Total: Rp ${formatRp(total)}`);
+      }
+      return { total, lines };
+    }
+
+    // helper: format rupiah simple
+    function formatRp(x) {
+      if (isNaN(x)) return '0';
+      return Number(x).toLocaleString('id-ID');
+    }
+
+    // escape html
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+
+    // render everything
+    function renderAll() {
+      renderList();
+      renderTable();
+    }
+
+    // show tab helper
+    const tabEls = { tarif: document.getElementById('tab-tarif'), simulasi: document.getElementById('tab-simulasi'), data: document.getElementById('tab-data') };
+    const contentEls = { tarif: document.getElementById('content-tarif'), simulasi: document.getElementById('content-simulasi'), data: document.getElementById('content-data') };
+    function showTab(key) {
+      Object.values(tabEls).forEach(el => el.classList.remove('text-amber-400', 'border-b-2', 'border-amber-400'));
+      Object.values(contentEls).forEach(c => c.classList.add('hidden'));
+      tabEls[key].classList.add('text-amber-400', 'border-b-2', 'border-amber-400');
+      contentEls[key].classList.remove('hidden');
+      if (key === 'simulasi') {
+        // ensure options loaded
+        populateSimSelect();
+      }
+      if (key === 'data') {
+        renderTable();
+      }
+    }
+
+    tabEls.tarif.addEventListener('click', () => showTab('tarif'));
+    tabEls.simulasi.addEventListener('click', () => showTab('simulasi'));
+    tabEls.data.addEventListener('click', () => showTab('data'));
+
+    // initial default shown
+    showTab('tarif');
+
+    // populate sim select from DB
+    function populateSimSelect() {
+      const sel = document.getElementById('sim-jenis');
+      sel.innerHTML = '<option value="">-- pilih jenis kendaraan --</option>';
+      const store = storeTransaction('readonly');
+      store.openCursor().onsuccess = (e) => {
+        const c = e.target.result;
+        if (c) {
+          const j = c.value["Jenis Kendaraan"];
+          // prevent duplicates
+          if (![...sel.options].some(o => o.value === j)) {
+            sel.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(j)}">${escapeHtml(j)}</option>`);
+          }
+          c.continue();
+        }
+      };
+    }
+
+    // delete all (debug) - not exposed in UI, useful during dev
+    function clearAll() {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).clear().onsuccess = () => renderAll();
+    }
+
+    // render list and table after DB ready - call after ensures
+    // we already call ensureDefaults and renderAll on open
+
+    // loadTableData initially also done by renderAll
+
+    // expose renderAll to window for debugging if needed
+    window.renderAll = renderAll;
   </script>
 </body>
 
