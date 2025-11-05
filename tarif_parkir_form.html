@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarif Parkir - IndexedDB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #111827; color: #e5e7eb; }
-    .card { background-color: #1f2937; border: 1px solid #374151; border-radius: 1rem; padding: 1.5rem; }
-    .tab { cursor: pointer; }
-    .hidden { display: none; }
+    body {
+      background-color: #111827;
+      color: #e5e7eb;
+    }
+
+    .card {
+      background-color: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .tab {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 
@@ -18,22 +34,21 @@
     <h1 class="text-2xl font-bold mb-4 text-amber-400">Manajemen Tarif Parkir</h1>
 
     <!-- Tab Navigation -->
-    <div class="flex gap-4 mb-6 border-b border-gray-700">
+    <div class="flex gap-6 mb-6 border-b border-gray-700">
       <div id="tab-tarif" class="tab text-amber-400 border-b-2 border-amber-400 pb-2">Kelola Tarif Parkir</div>
       <div id="tab-simulasi" class="tab text-gray-400 hover:text-amber-400 pb-2">Simulasi Transaksi</div>
+      <div id="tab-data" class="tab text-gray-400 hover:text-amber-400 pb-2">Data Tersimpan</div>
     </div>
 
-    <!-- TAB: Kelola Tarif Parkir -->
+    <!-- TAB 1: Kelola Tarif Parkir -->
     <div id="tabContent-tarif">
       <form id="tarifForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Jenis Kendaraan -->
         <div>
           <label class="block mb-1 text-sm">Jenis Kendaraan</label>
           <input type="text" name="jenis_kendaraan" placeholder="Contoh: Mobil"
             class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
         </div>
 
-        <!-- Jenis Tarif -->
         <div>
           <label class="block mb-1 text-sm">Jenis Tarif</label>
           <select name="jenis_tarif"
@@ -44,56 +59,55 @@
           </select>
         </div>
 
-        <!-- Waktu Berlaku -->
         <div>
           <label class="block mb-1 text-sm">Waktu Berlaku</label>
           <input type="text" name="waktu_berlaku" placeholder="00:00 - 23:59"
             class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
         </div>
 
-        <!-- Grace Period -->
         <div>
           <label class="block mb-1 text-sm">Grace Period (menit)</label>
           <input type="number" name="grace_period" value="15"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100" />
         </div>
 
-        <!-- Tarif Grace -->
         <div>
           <label class="block mb-1 text-sm">Tarif Grace (Rp)</label>
           <input type="number" name="tarif_grace" value="0"
-            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100" />
         </div>
 
-        <!-- Rotasi dan Tarif -->
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block mb-1 text-sm">Rotasi 1 (jam ke-)</label>
-            <input type="number" name="rotasi1" value="1" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+            <input type="number" name="rotasi1" value="1"
+              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
           </div>
           <div><label class="block mb-1 text-sm">Tarif 1 (Rp)</label>
-            <input type="number" name="tarif1" value="5000" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+            <input type="number" name="tarif1" value="5000"
+              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block mb-1 text-sm">Rotasi 2 (jam ke-)</label>
-            <input type="number" name="rotasi2" value="2" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+            <input type="number" name="rotasi2" value="2"
+              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
           </div>
           <div><label class="block mb-1 text-sm">Tarif 2 (Rp)</label>
-            <input type="number" name="tarif2" value="10000" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+            <input type="number" name="tarif2" value="10000"
+              class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
           </div>
         </div>
 
-        <!-- Tarif Maksimum -->
         <div>
           <label class="block mb-1 text-sm">Tarif Maksimum per Hari (Rp)</label>
           <input type="number" name="tarif_maksimum" value="50000"
             class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100 focus:ring-2 focus:ring-amber-500 focus:outline-none" />
         </div>
 
-        <!-- Tombol -->
         <div class="md:col-span-2 flex justify-end gap-3 mt-2">
-          <button type="reset" class="px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200">Reset</button>
+          <button type="reset"
+            class="px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200">Reset</button>
           <button type="submit" class="px-4 py-2 bg-amber-500 text-gray-900 font-semibold rounded-md">Simpan</button>
         </div>
       </form>
@@ -101,31 +115,54 @@
       <div id="tarifList" class="mt-6 text-sm text-gray-300"></div>
     </div>
 
-    <!-- TAB: Simulasi Transaksi -->
+    <!-- TAB 2: Simulasi Transaksi -->
     <div id="tabContent-simulasi" class="hidden">
       <div class="grid md:grid-cols-3 gap-4">
         <div>
           <label class="block mb-1 text-sm">Jenis Kendaraan</label>
-          <select id="simJenisKendaraan" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100"></select>
+          <select id="simJenisKendaraan"
+            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100"></select>
         </div>
         <div>
           <label class="block mb-1 text-sm">Jam Masuk</label>
-          <input type="time" id="simMasuk" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+          <input type="time" id="simMasuk"
+            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
         </div>
         <div>
           <label class="block mb-1 text-sm">Jam Keluar</label>
-          <input type="time" id="simKeluar" class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
+          <input type="time" id="simKeluar"
+            class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-gray-100">
         </div>
       </div>
 
-      <button id="btnSimulasi" class="mt-4 px-4 py-2 bg-amber-500 text-gray-900 rounded-md font-semibold">Hitung Biaya</button>
+      <button id="btnSimulasi" class="mt-4 px-4 py-2 bg-amber-500 text-gray-900 rounded-md font-semibold">Hitung
+        Biaya</button>
 
       <div id="hasilSimulasi" class="mt-4 text-lg text-amber-400 font-bold"></div>
+    </div>
+
+    <!-- TAB 3: Data Tersimpan -->
+    <div id="tabContent-data" class="hidden">
+      <h2 class="text-xl font-semibold mb-3 text-amber-400">Data Tarif Parkir di Database</h2>
+      <table class="w-full text-sm border border-gray-700 rounded-md overflow-hidden">
+        <thead class="bg-gray-800 text-gray-300">
+          <tr>
+            <th class="p-2 border border-gray-700">ID</th>
+            <th class="p-2 border border-gray-700">Kendaraan</th>
+            <th class="p-2 border border-gray-700">Jenis Tarif</th>
+            <th class="p-2 border border-gray-700">Waktu Berlaku</th>
+            <th class="p-2 border border-gray-700">Tarif 1</th>
+            <th class="p-2 border border-gray-700">Tarif 2</th>
+            <th class="p-2 border border-gray-700">Maks / Hari</th>
+          </tr>
+        </thead>
+        <tbody id="tableData" class="bg-gray-900 text-gray-200"></tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    // ================= IndexedDB Setup =================
+    // IndexedDB
     let db;
     const request = indexedDB.open("DBParkir", 1);
     request.onupgradeneeded = (e) => {
@@ -137,23 +174,24 @@
     request.onsuccess = (e) => {
       db = e.target.result;
       loadTarifList();
+      loadTableData();
     };
 
-    // ================= Form Simpan Tarif =================
+    // Simpan Tarif
     document.getElementById("tarifForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const form = e.target;
       const data = Object.fromEntries(new FormData(form).entries());
-
       const tx = db.transaction("tarif", "readwrite");
       tx.objectStore("tarif").add(data);
       tx.oncomplete = () => {
         form.reset();
         loadTarifList();
+        loadTableData();
       };
     });
 
-    // ================= Menampilkan Data Tarif =================
+    // Daftar Tarif
     function loadTarifList() {
       const listDiv = document.getElementById("tarifList");
       const selectSim = document.getElementById("simJenisKendaraan");
@@ -166,46 +204,65 @@
         const cursor = e.target.result;
         if (cursor) {
           const t = cursor.value;
-          listDiv.innerHTML += `
-            <div class="p-3 mb-2 bg-gray-800 rounded-md border border-gray-700">
+          listDiv.innerHTML += `<div class="p-3 mb-2 bg-gray-800 rounded-md border border-gray-700">
               <div class="font-semibold">${t.jenis_kendaraan}</div>
-              <div class="text-xs text-gray-400">${t.jenis_tarif} | ${t.waktu_berlaku}</div>
-            </div>`;
+              <div class="text-xs text-gray-400">${t.jenis_tarif} | ${t.waktu_berlaku}</div></div>`;
           selectSim.innerHTML += `<option value="${t.jenis_kendaraan}">${t.jenis_kendaraan}</option>`;
           cursor.continue();
         }
       };
     }
 
-    // ================= Tab Navigation =================
+    // Tabel Data dari DB
+    function loadTableData() {
+      const tbody = document.getElementById("tableData");
+      tbody.innerHTML = "";
+      const tx = db.transaction("tarif", "readonly");
+      const store = tx.objectStore("tarif");
+      store.openCursor().onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          const t = cursor.value;
+          tbody.innerHTML += `
+            <tr class="border-b border-gray-800 hover:bg-gray-800">
+              <td class="p-2 border border-gray-700">${t.id}</td>
+              <td class="p-2 border border-gray-700">${t.jenis_kendaraan}</td>
+              <td class="p-2 border border-gray-700">${t.jenis_tarif}</td>
+              <td class="p-2 border border-gray-700">${t.waktu_berlaku}</td>
+              <td class="p-2 border border-gray-700">${t.tarif1}</td>
+              <td class="p-2 border border-gray-700">${t.tarif2}</td>
+              <td class="p-2 border border-gray-700">${t.tarif_maksimum}</td>
+            </tr>`;
+          cursor.continue();
+        }
+      };
+    }
+
+    // Tabs
     const tabTarif = document.getElementById("tab-tarif");
     const tabSim = document.getElementById("tab-simulasi");
+    const tabData = document.getElementById("tab-data");
     const contentTarif = document.getElementById("tabContent-tarif");
     const contentSim = document.getElementById("tabContent-simulasi");
+    const contentData = document.getElementById("tabContent-data");
 
-    tabTarif.onclick = () => {
-      tabTarif.classList.add("text-amber-400", "border-b-2", "border-amber-400");
-      tabSim.classList.remove("text-amber-400", "border-b-2", "border-amber-400");
-      contentTarif.classList.remove("hidden");
-      contentSim.classList.add("hidden");
-    };
+    function showTab(selected, others, contentShow, contentsHide) {
+      selected.classList.add("text-amber-400", "border-b-2", "border-amber-400");
+      others.forEach(o => o.classList.remove("text-amber-400", "border-b-2", "border-amber-400"));
+      contentShow.classList.remove("hidden");
+      contentsHide.forEach(c => c.classList.add("hidden"));
+    }
 
-    tabSim.onclick = () => {
-      tabSim.classList.add("text-amber-400", "border-b-2", "border-amber-400");
-      tabTarif.classList.remove("text-amber-400", "border-b-2", "border-amber-400");
-      contentSim.classList.remove("hidden");
-      contentTarif.classList.add("hidden");
-    };
+    tabTarif.onclick = () => showTab(tabTarif, [tabSim, tabData], contentTarif, [contentSim, contentData]);
+    tabSim.onclick = () => showTab(tabSim, [tabTarif, tabData], contentSim, [contentTarif, contentData]);
+    tabData.onclick = () => { showTab(tabData, [tabTarif, tabSim], contentData, [contentTarif, contentSim]); loadTableData(); };
 
-    // ================= Simulasi Hitung Parkir =================
+    // Simulasi
     document.getElementById("btnSimulasi").addEventListener("click", () => {
       const jenis = document.getElementById("simJenisKendaraan").value;
       const masuk = document.getElementById("simMasuk").value;
       const keluar = document.getElementById("simKeluar").value;
-      if (!jenis || !masuk || !keluar) {
-        alert("Lengkapi data simulasi terlebih dahulu");
-        return;
-      }
+      if (!jenis || !masuk || !keluar) return alert("Lengkapi data simulasi terlebih dahulu");
 
       const jamMasuk = parseInt(masuk.split(":")[0]);
       const jamKeluar = parseInt(keluar.split(":")[0]);
@@ -218,24 +275,20 @@
       store.openCursor().onsuccess = (e) => {
         const c = e.target.result;
         if (c) {
-          if (c.value.jenis_kendaraan === jenis) {
-            tarifDipakai = c.value;
-          }
+          if (c.value.jenis_kendaraan === jenis) tarifDipakai = c.value;
           c.continue();
+        } else if (tarifDipakai) {
+          let total = 0;
+          if (durasi <= tarifDipakai.rotasi1) total = parseInt(tarifDipakai.tarif1);
+          else if (durasi <= tarifDipakai.rotasi2) total = parseInt(tarifDipakai.tarif2);
+          else total = parseInt(tarifDipakai.tarif_maksimum);
+          document.getElementById("hasilSimulasi").innerText = `Total Bayar: Rp ${total.toLocaleString()}`;
         } else {
-          if (tarifDipakai) {
-            let total = 0;
-            if (durasi <= tarifDipakai.rotasi1) total = parseInt(tarifDipakai.tarif1);
-            else if (durasi <= tarifDipakai.rotasi2) total = parseInt(tarifDipakai.tarif2);
-            else total = parseInt(tarifDipakai.tarif_maksimum);
-            document.getElementById("hasilSimulasi").innerText =
-              `Total Bayar: Rp ${total.toLocaleString()}`;
-          } else {
-            alert("Tarif tidak ditemukan");
-          }
+          alert("Tarif tidak ditemukan");
         }
       };
     });
   </script>
 </body>
+
 </html>
